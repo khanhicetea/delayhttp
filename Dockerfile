@@ -16,7 +16,7 @@ FROM alpine:3.14 as production
 # Add certificates
 RUN apk add --no-cache ca-certificates
 # Copy built binary from builder
-COPY --from=builder app .
+COPY --from=builder delayhttp .
 # Expose port
 EXPOSE 3333
 # Exec built binary

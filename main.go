@@ -19,7 +19,7 @@ func workerLog(workerID int, msg string) {
 	log.Println("Worker", workerID, msg)
 }
 
-func worker(workerID int, hc *http.Client, jobs <-chan []byte, done *uint64, failed *uint64) {
+func worker(workerID int, hc *retryablehttp.Client, jobs <-chan []byte, done *uint64, failed *uint64) {
 	workerLog(workerID, "Ready to work ...")
 
 	for j := range jobs {
@@ -40,7 +40,8 @@ func worker(workerID int, hc *http.Client, jobs <-chan []byte, done *uint64, fai
 			req.URL.Scheme = "https"
 		}
 
-		_, err := hc.Do(req)
+		retry_req, _ := retryablehttp.FromRequest(req)
+		_, err := hc.Do(retry_req)
 
 		if err != nil {
 			fmt.Println(err)
@@ -54,7 +55,8 @@ func worker(workerID int, hc *http.Client, jobs <-chan []byte, done *uint64, fai
 }
 
 func serve(bind string, port string, worker_num uint64) {
-	hc := retryablehttp.DefaultPooledClient()
+	pooledClient := retryablehttp.DefaultPooledClient()
+	hc := retryablehttp.NewWithHTTPClient(pooledClient, retryablehttp.DefaultOptionsSingle)
 	jobs := make(chan []byte, 1000)
 	var received, done, failed uint64
 
