@@ -10,14 +10,14 @@ RUN go mod download
 # Copy app files
 COPY . .
 # Build app
-RUN go build -o delayhttp
+RUN go build -o app
 
 FROM alpine:3.14 as production
 # Add certificates
 RUN apk add --no-cache ca-certificates
 # Copy built binary from builder
-COPY --from=builder delayhttp .
+COPY --from=builder app .
 # Expose port
 EXPOSE 3333
 # Exec built binary
-CMD ./delayhttp
+CMD ./app
