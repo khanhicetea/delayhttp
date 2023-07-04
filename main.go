@@ -40,8 +40,14 @@ func worker(workerID int, hc *retryablehttp.Client, jobs <-chan []byte, done *ui
 			req.URL.Scheme = "https"
 		}
 
-		retry_req, _ := retryablehttp.FromRequest(req)
-		_, err := hc.Do(retry_req)
+		retry_req, err := retryablehttp.FromRequest(req)
+		if err != nil {
+			fmt.Println(err)
+			atomic.AddUint64(failed, 1)
+			break
+		}
+
+		_, err = hc.Do(retry_req)
 
 		if err != nil {
 			fmt.Println(err)
