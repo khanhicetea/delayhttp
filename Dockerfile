@@ -18,6 +18,6 @@ RUN apk add --no-cache ca-certificates
 # Copy built binary from builder
 COPY --from=builder app .
 # Expose port
-EXPOSE 4000
+EXPOSE 3333
 # Exec built binary
 CMD ./delayhttp
